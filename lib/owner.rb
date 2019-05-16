@@ -2,7 +2,7 @@ class Owner
   # code goes here
   @@all_owner =[]
 
-  attr_reader :name,:species,:cats,:dogs,:pets
+  attr_reader :name,:species,:cats,:dogs
 
     def initialize(name)
       @name=name
@@ -10,7 +10,6 @@ class Owner
       @@all_owner << self
       @cats = []
       @dogs = []
-      @pets = []
     end
 
     def say_species
@@ -20,56 +19,46 @@ class Owner
     def buy_cat(pet_name)
       new_cat = Cat.new(pet_name,self)
       self.cats << new_cat
-      # self.pets << new_cat
     end
 
     def buy_dog(pet_name)
       new_dog = Dog.new(pet_name,self)
        self.dogs << new_dog
-       # self.pets << new_dog
+    end
+
+    def get_owned_pet(petClass)
+      petClass.all.select do |pet|
+        pet.owner == self
+      end
+    end
+
+    def get_all_pets
+      return self.get_owned_pet(Dog) + self.get_owned_pet(Cat)
     end
 
     def walk_dogs
-      Dog.all.select do |dog|
-       dog.owner == self
-     end.each do |walked_dog|
+      self.get_owned_pet(Dog).each do |walked_dog|
        walked_dog.mood = 'happy'
      end
     end
 
     def feed_cats
-      Cat.all.select do |cat|
-       cat.owner == self
-     end.each do |fed_cat|
+      self.get_owned_pet(Cat).each do |fed_cat|
        fed_cat.mood = 'happy'
      end
     end
 
     def sell_pets
-      Cat.all.select do |cat|
-       cat.owner == self
-     end.each do |sold_cat|
-       sold_cat.mood = 'nervous'
-       sold_cat.owner = nil
-     end
-     Dog.all.select do |dog|
-      dog.owner == self
-    end.each do |sold_dog|
-      sold_dog.mood = 'nervous'
-      sold_dog.owner = nil
-    end
-
+      self.get_all_pets.each do |pet|
+        pet.mood='nervous'
+        pet.owner = nil
+      end
     end
 
     def list_pets
       # binding.pry
       "I have #{self.dogs.length} dog(s), and #{self.cats.length} cat(s)."
     end
-
-
-
-
-
 
     def self.all
       @@all_owner
